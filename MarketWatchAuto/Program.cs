@@ -113,8 +113,69 @@ namespace MarketWatchAuto
             }
         }
 
-        private static Dictionary<string, int> CalculatePriority(Dictionary<string, List<bool>> boolStatus)
+        private static void CompareForPercIncreaseForLongDur(Dictionary<string, List<string>> historicalList)
         {
+            bool firstInterv = false, secndInterv = false, thirdInterv = false, fourthInterv = false, 
+                fifthInterv = false, sixthInterv = false, seventhInterv = false, eightInterv = false,
+                ninethInterv = false, tenthInterv = false;
+            var boolStatus = new Dictionary<string, List<bool>>();
+            _result = new Dictionary<string, int>();
+            foreach (var hist in historicalList)
+            {
+                var histValue = hist.Value;
+                int i = 0;
+                if (histValue.Count > 1 && float.Parse(histValue[i]) >= float.Parse(histValue[i + 1]))
+                    firstInterv = true;
+                if (histValue.Count > 2 && float.Parse(histValue[i + 1]) >= float.Parse(histValue[i + 2]))
+                    secndInterv = true;
+                if (histValue.Count > 3 && float.Parse(histValue[i + 2]) >= float.Parse(histValue[i + 3]))
+                    thirdInterv = true;
+                if (histValue.Count > 4 && float.Parse(histValue[i + 3]) >= float.Parse(histValue[i + 4]))
+                    fourthInterv = true;
+                if (histValue.Count > 5 && float.Parse(histValue[i + 4]) >= float.Parse(histValue[i + 5]))
+                    fifthInterv = true;
+                if (histValue.Count > 6 && float.Parse(histValue[i + 5]) >= float.Parse(histValue[i + 6]))
+                    sixthInterv = true;
+                if (histValue.Count > 7 && float.Parse(histValue[i + 6]) >= float.Parse(histValue[i + 7]))
+                    seventhInterv = true;
+                if (histValue.Count > 8 && float.Parse(histValue[i + 7]) >= float.Parse(histValue[i + 8]))
+                    eightInterv = true;
+                if (histValue.Count > 9 && float.Parse(histValue[i + 8]) >= float.Parse(histValue[i + 9]))
+                    ninethInterv = true;
+                if (histValue.Count > 10 && float.Parse(histValue[i + 9]) >= float.Parse(histValue[i + 10]))
+                    tenthInterv = true;
+
+                boolStatus.Add(hist.Key, new List<bool>() { firstInterv, secndInterv, thirdInterv, fourthInterv, fifthInterv, sixthInterv,
+                    seventhInterv, eightInterv, ninethInterv, tenthInterv });
+                firstInterv = false;
+                secndInterv = false;
+                thirdInterv = false;
+                fourthInterv = false;
+                fifthInterv = false;
+                sixthInterv = false;
+                seventhInterv = false;
+                eightInterv = false;
+                ninethInterv = false;
+                tenthInterv = false;
+            }
+            _result = CalculatePriorityForLongDur(boolStatus);
+            var created = CreatePriorityExcel(_result);
+            if (created)
+            {
+                Console.WriteLine("The priority excel sheet can not be created. Hence process is incomplete.");
+            }
+            else
+            {
+                Console.WriteLine("The process is completed successfully.");
+            }
+        }
+
+        private static void CompareForPercIncreaseForMonthsYear(Dictionary<string, List<string>> historicalList)
+        {
+        }
+
+        private static Dictionary<string, int> CalculatePriority(Dictionary<string, List<bool>> boolStatus)
+        {   
             var result = new Dictionary<string, int>();
             foreach (var boolStatu in boolStatus)
             {
@@ -122,6 +183,70 @@ namespace MarketWatchAuto
                 int prio = 0;
                 var histValue = boolStatu.Value;
                 if (histValue[i] && histValue[i + 1] && histValue[i + 2] && histValue[i + 3])
+                {
+                    prio = 4;
+                }
+                else if ((histValue[i] && histValue[i + 1] && histValue[i + 2]) ||
+                         (histValue[i + 1] && histValue[i + 2] && histValue[i + 3]))
+                {
+                    prio = 3;
+                }
+                else if (histValue[i] && histValue[i + 1])
+                {
+                    prio = 2;
+                }
+                else if (histValue[i + 1] && histValue[i + 2])
+                {
+                    prio = 1;
+                }
+                else
+                {
+                    prio = 0;
+                }
+                result.Add(boolStatu.Key, prio);
+            }
+            return result;
+        }
+
+        private static Dictionary<string, int> CalculatePriorityForLongDur(Dictionary<string, List<bool>> boolStatus)
+        {
+            var result = new Dictionary<string, int>();
+            foreach (var boolStatu in boolStatus)
+            {
+                int i = 0;
+                int prio = 0;
+                var histValue = boolStatu.Value;
+                if (histValue[i] && histValue[i + 1] && histValue[i + 2] && histValue[i + 3] && histValue[i + 4] && histValue[i + 5] && histValue[i + 6] && histValue[i + 7] 
+                    && histValue[i + 8] && histValue[i + 9])
+                {
+                    prio = 10;
+                }
+                else if ((histValue[i] && histValue[i + 1] && histValue[i + 2] && histValue[i + 3] && histValue[i + 4] && histValue[i + 5] && histValue[i + 6] && histValue[i + 7]
+                    && histValue[i + 8])|| 
+                    (histValue[i + 1] && histValue[i + 2] && histValue[i + 3] && histValue[i + 4] && histValue[i + 5] && histValue[i + 6] && histValue[i + 7]
+                    && histValue[i + 8] && histValue[i + 9]))
+                {
+                    prio = 9;
+                }
+                else if ((histValue[i] && histValue[i + 1] && histValue[i + 2] && histValue[i + 3] && histValue[i + 4] && histValue[i + 5] && histValue[i + 6] && histValue[i + 7]) 
+                    ||(histValue[i + 2] && histValue[i + 3] && histValue[i + 4] && histValue[i + 5] && histValue[i + 6] && histValue[i + 7]
+                    && histValue[i + 8] && histValue[i + 9]))
+                {
+                    prio = 8;
+                }
+                else if (histValue[i] && histValue[i + 1] && histValue[i + 2] && histValue[i + 3] && histValue[i + 4] && histValue[i + 5] && histValue[i + 6])
+                {
+                    prio = 7;
+                }
+                else if (histValue[i] && histValue[i + 1] && histValue[i + 2] && histValue[i + 3] && histValue[i + 4] && histValue[i + 5])
+                {
+                    prio = 6;
+                }
+                else if (histValue[i] && histValue[i + 1] && histValue[i + 2] && histValue[i + 3] && histValue[i + 4])
+                {
+                    prio = 5;
+                }
+                else if (histValue[i] && histValue[i + 1] && histValue[i + 2] && histValue[i + 3] && histValue[i + 4])
                 {
                     prio = 4;
                 }
