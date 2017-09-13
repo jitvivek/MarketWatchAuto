@@ -10,6 +10,13 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Excel = Microsoft.Office.Interop.Excel;
 
+/// <summary>
+/// Help: 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=' can be used as new API as for 
+/// e.g.: 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=BSE:EICHERMOT&apikey=RNUKFHCB0MAYF6F8' by changing NSE/BSE and all over world exchanges also.
+/// (go for https://www.alphavantage.co/documentation/ for more details.)
+/// This also can be used 'https://finance.google.com/finance?output=json&q=EICHERMOT'
+/// </summary>
+
 namespace MarketWatchAuto
 {
     class Program
