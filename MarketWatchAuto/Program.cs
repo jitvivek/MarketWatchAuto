@@ -23,7 +23,8 @@ namespace MarketWatchAuto
     {
         static void Main(string[] args)
         {
-            string tag = "https://finance.google.com/finance/info?q=NSE:";
+            //string tag = "https://finance.google.com/finance/info?q=NSE:";
+            string tag = "https://finance.google.com/finance?output=json&q=";
             ReadTheSheet(tag);
         }
 
@@ -479,13 +480,13 @@ namespace MarketWatchAuto
                                     var appendSymbolWithSpecialChar = splitSymbol[0] + "%26" + splitSymbol[1];
                                     result = Extract(tag + appendSymbolWithSpecialChar, webClient);
                                     results.Add(result);
-                                    historicalList.Add(result, new List<string>());
                                 }
                                 else
                                 {
                                     result = Extract(tag + str[i], webClient);
                                     results.Add(result);
                                 }
+                                historicalList.Add(result, new List<string>());
                             }
                             catch (Exception)
                             {
@@ -497,21 +498,21 @@ namespace MarketWatchAuto
 
                 Console.WriteLine("Creating symbol data list for priority calculation...");
 
-                for (int i = xlWorkbook.Worksheets.Count; i >= 1; i--)
-                {
-                    xlWorksheet = (Excel.Worksheet)xlWorkbook.Worksheets.Item[i];
-                    range = xlWorksheet.UsedRange;
-                    string key = string.Empty;
-                    int j = 0;
-                    foreach (var cCnt in historicalList)
-                    {
-                        key= (string)(range.Cells[cCnt, 2] as Excel.Range).Value2;
-                        if (historicalList.ContainsKey(key))
-                        {
-                            historicalList[key][j++] = (string)(range.Cells[cCnt, 2] as Excel.Range).Value2;
-                        }
-                    }
-                }
+                //for (int i = xlWorkbook.Worksheets.Count; i >= 1; i--)
+                //{
+                //    xlWorksheet = (Excel.Worksheet)xlWorkbook.Worksheets.Item[i];
+                //    range = xlWorksheet.UsedRange;
+                //    string key = string.Empty;
+                //    int j = 0;
+                //    foreach (var cCnt in historicalList)
+                //    {
+                //        key= (string)(range.Cells[cCnt, 2] as Excel.Range).Value2;
+                //        if (historicalList.ContainsKey(key))
+                //        {
+                //            historicalList[key][j++] = (string)(range.Cells[cCnt, 2] as Excel.Range).Value2;
+                //        }
+                //    }
+                //}
                 
                 Console.WriteLine("Creating symbol data list...");
 
@@ -685,38 +686,50 @@ namespace MarketWatchAuto
                 switch (firstValue)
                 {
                     case "id":
-                        resultDictionary.Add("ID", value);
+                        if (!resultDictionary.ContainsKey("ID"))
+                            resultDictionary.Add("ID", value);
                         break;
                     case "t":
-                        value = value.Contains("\\u00026") ? value.Replace("\\u0026", "&") : value;
-                        symbol = value;
-                        resultDictionary.Add("Symbol", value);
-                        symbolListToBeAssign = value;
+                        if (!resultDictionary.ContainsKey("Symbol"))
+                        {
+                            value = value.Contains("\\u00026") ? value.Replace("\\u0026", "&") : value;
+                            symbol = value;
+                            resultDictionary.Add("Symbol", value);
+                            symbolListToBeAssign = value;
+                        }
                         break;
                     case "e":
-                        resultDictionary.Add("Sensex", value);
+                        if (!resultDictionary.ContainsKey("Sensex"))
+                            resultDictionary.Add("Sensex", value);
                         break;
                     case "l_fix":
-                        resultDictionary.Add("CurrentPrice", value);
+                    case "l":
+                        if (!resultDictionary.ContainsKey("CurrentPrice"))
+                            resultDictionary.Add("CurrentPrice", value);
                         break;
                     case "lt":
                         var time = aa[++i].Trim();
-                        resultDictionary.Add("Date", value);
+                        if (!resultDictionary.ContainsKey("Date"))
+                            resultDictionary.Add("Date", value);
+                        if(!resultDictionary.ContainsKey("Time"))
                         resultDictionary.Add("Time", time);
                         break;
                     case "c":
-                        resultDictionary.Add("Change", value);
+                        if (!resultDictionary.ContainsKey("Change"))
+                            resultDictionary.Add("Change", value);
                         break;
                     case "cp":
-                        resultDictionary.Add("ChangePercentage(%)", value);
+                        if (!resultDictionary.ContainsKey("ChangePercentage(%)"))
+                            resultDictionary.Add("ChangePercentage(%)", value);
                         break;
                     case "pcls_fix":
-                        resultDictionary.Add("PreviousClosurePrice", value);
+                        if (!resultDictionary.ContainsKey("PreviousClosurePrice"))
+                            resultDictionary.Add("PreviousClosurePrice", value);
                         break;
-
                 }
-
             }
+            resultDictionary.Add("Date", DateTime.Today.ToString());
+            resultDictionary.Add("Time", DateTime.Today.ToShortTimeString().ToString());
             resultSymbolDictionary.Add(symbol, resultDictionary);
             symbolList = symbolListToBeAssign;
             return resultSymbolDictionary;
